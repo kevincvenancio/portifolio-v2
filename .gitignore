@@ -4,3 +4,6 @@ dist
 shots
 
 .vercel
+
+.vercel
+.env*
