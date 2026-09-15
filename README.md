@@ -1,5 +1,7 @@
 # Kevin Carvalho Venancio — Portfólio
 
+**Em produção:** https://kevin-venancio.vercel.app
+
 Site de portfólio pessoal. Um conceito único conduz tudo: **o site é uma descida
 por camadas de um sistema**. Você não rola uma página — você atravessa um volume,
 da superfície (o nome, a interface) até o substrato (infraestrutura, dados) e de
@@ -135,5 +137,14 @@ Ferramentas auxiliares: `tools/shot.mjs` (capturas rápidas),
 
 ## Deploy
 
-Saída estática em `dist/` — serve em qualquer host. Na Vercel, o preset Vite já
-resolve: build `npm run build`, diretório `dist`.
+Saída estática em `dist/` — serve em qualquer host.
+
+Este repositório está conectado ao projeto `kevin-venancio` na Vercel: **todo
+push na `main` publica em produção**, e cada branch ou PR ganha uma URL de
+preview. O `vercel.json` já traz o preset e os cabeçalhos.
+
+Para publicar manualmente sem passar pelo Git:
+
+```bash
+npx vercel --prod --yes
+```
