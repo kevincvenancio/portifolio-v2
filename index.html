@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Kevin Carvalho Venancio — Desenvolvedor Backend</title>
+<meta name="description" content="Desenvolvedor backend focado em segurança e sistemas financeiros. Java · Spring Boot · Python · AWS. Estagiário no Itaú Unibanco, atuando com Open Gateway (GSMA) e OAuth 2.0." />
+<meta name="theme-color" content="#06070A" />
+<meta property="og:title" content="Kevin Carvalho Venancio — Desenvolvedor Backend" />
+<meta property="og:description" content="Eu construo a camada de baixo. Segurança e sistemas financeiros." />
+<meta property="og:type" content="website" />
+<link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+<body class="is-loading">
+
+<!-- ═══════════════ CAMADAS DE FUNDO (profundidade -Z) ═══════════════ -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<canvas id="dust" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- ═══════════════ PRÉ-CARREGADOR ═══════════════ -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__inner">
+    <div class="preloader__top">
+      <span class="mono preloader__label">Estabelecendo conexão</span>
+      <span class="mono preloader__count"><i id="pcount">000</i></span>
+    </div>
+    <div class="preloader__name">
+      <span class="preloader__word">Kevin</span>
+      <span class="preloader__word">Carvalho</span>
+      <span class="preloader__word">Venancio</span>
+    </div>
+    <div class="preloader__bar"><i id="pbar"></i></div>
+    <div class="preloader__layers mono" id="player">Camada 00 · Superfície</div>
+  </div>
+  <div class="preloader__curtain"></div>
+</div>
+
+<!-- ═══════════════ HUD FIXO ═══════════════ -->
+<div class="hud__scrim" aria-hidden="true"></div>
+<header class="hud hud--top">
+  <a href="#topo" class="brand" data-cursor="link" aria-label="Kevin Carvalho Venancio, início">
+    <span class="brand__mark" aria-hidden="true">
+      <svg viewBox="0 0 34 34" fill="none"><path d="M5 5v24M5 17 17 5M5 17l12 12M22 5l7 12-7 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>
+    </span>
+    <span class="brand__text">
+      <b>Kevin Carvalho Venancio</b>
+      <i class="mono">Desenvolvedor Backend</i>
+    </span>
+  </a>
+  <nav class="nav" aria-label="Navegação principal">
+    <a href="#descida" data-cursor="link"><em class="mono">01</em> Manifesto</a>
+    <a href="#origem" data-cursor="link"><em class="mono">02</em> Origem</a>
+    <a href="#gateway" data-cursor="link"><em class="mono">03</em> Itaú</a>
+    <a href="#dominio" data-cursor="link"><em class="mono">04</em> Projetos</a>
+    <a href="#arsenal" data-cursor="link"><em class="mono">05</em> Arsenal</a>
+    <a href="#contato" data-cursor="link" class="nav__cta"><em class="mono">07</em> Contato</a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false" data-cursor="link">
+    <i></i><i></i>
+  </button>
+</header>
+
+<!-- Menu overlay (mobile) -->
+<div class="menu" id="menu" aria-hidden="true">
+  <div class="menu__bg"></div>
+  <nav class="menu__list">
+    <a href="#topo"><em class="mono">00</em><span>Superfície</span></a>
+    <a href="#descida"><em class="mono">01</em><span>Manifesto</span></a>
+    <a href="#origem"><em class="mono">02</em><span>Origem</span></a>
+    <a href="#gateway"><em class="mono">03</em><span>Itaú · Gateway</span></a>
+    <a href="#dominio"><em class="mono">04</em><span>Projetos</span></a>
+    <a href="#arsenal"><em class="mono">05</em><span>Arsenal</span></a>
+    <a href="#substrato"><em class="mono">06</em><span>Provas</span></a>
+    <a href="#contato"><em class="mono">07</em><span>Contato</span></a>
+  </nav>
+  <div class="menu__foot mono">
+    <a href="mailto:kevincvenancio@gmail.com">kevincvenancio@gmail.com</a>
+    <a href="tel:+5511939510756">(11) 93951-0756</a>
+  </div>
+</div>
+
+<!-- Medidor de profundidade -->
+<aside class="depth" aria-hidden="true">
+  <div class="depth__gauge">
+    <span class="depth__notches">
+      <i data-t="0"></i><i data-t="1"></i><i data-t="2"></i><i data-t="3"></i>
+      <i data-t="4"></i><i data-t="5"></i><i data-t="6"></i><i data-t="7"></i>
+    </span>
+    <span class="depth__rail"><i id="depthfill"></i></span>
+  </div>
+  <span class="mono depth__m" id="depthm">0000</span>
+  <span class="mono depth__u">m</span>
+  <span class="mono depth__layer" id="depthlabel">Superfície</span>
+</aside>
+
+<div class="cursor" id="cursor" aria-hidden="true"><i class="cursor__dot"></i><i class="cursor__ring"></i><span class="cursor__label mono"></span></div>
+
+<main id="stage" class="stage">
+
+<!-- ═══════════════ 00 · SUPERFÍCIE ═══════════════ -->
+<section class="sec sec--hero" id="topo" data-layer="0" data-label="Superfície" data-depth="0">
+  <div class="hero__strata" aria-hidden="true">
+    <span class="strata" data-par="0.10"></span>
+    <span class="strata" data-par="0.22"></span>
+    <span class="strata" data-par="0.38"></span>
+  </div>
+
+  <div class="hero__glyphs" aria-hidden="true">
+    <b class="glyph mono" data-par="0.55" style="--x:8%;  --y:22%">{ }</b>
+    <b class="glyph mono" data-par="0.30" style="--x:88%; --y:30%">200 OK</b>
+    <b class="glyph mono" data-par="0.72" style="--x:16%; --y:74%">OAuth 2.0</b>
+    <b class="glyph mono" data-par="0.44" style="--x:70%; --y:86%">SELECT *</b>
+    <b class="glyph mono" data-par="0.62" style="--x:46%; --y:12%">/api/v1</b>
+  </div>
+
+  <div class="hero__inner">
+    <p class="eyebrow mono" data-reveal="fade">
+      <i class="dot"></i> Camada 00 — Superfície
+      <em>São Paulo · Brasil</em>
+    </p>
+
+    <h1 class="hero__name" data-reveal="chars" aria-label="Kevin Carvalho Venancio">
+      <span class="hero__line" data-par="-0.06">Kevin</span>
+      <span class="hero__line hero__line--mid" data-par="-0.12">Carvalho</span>
+      <span class="hero__line" data-par="-0.19">Venancio</span>
+    </h1>
+
+    <div class="hero__base">
+      <p class="hero__role" data-reveal="words">
+        Desenvolvedor <b>Backend</b> — <span class="mono">Java · Spring Boot · Python · AWS</span>
+      </p>
+      <p class="hero__poem serif" data-reveal="words">
+        Tudo o que você vê <i>se apoia</i> em algo que você não vê.
+      </p>
+    </div>
+
+    <div class="hero__meta" data-reveal="fade">
+      <span class="mono">Estagiário · Itaú Unibanco</span>
+      <span class="mono">Eng. de Software · FIAP · 5º período</span>
+      <span class="mono">20 anos</span>
+    </div>
+  </div>
+
+  <div class="hero__cue" aria-hidden="true">
+    <span class="mono">Role para descer</span>
+    <i class="cue__line"><b></b></i>
+  </div>
+</section>
+
+<!-- ═══════════════ 01 · MANIFESTO (descida) ═══════════════ -->
+<section class="sec sec--manifesto" id="descida" data-layer="1" data-label="Descida" data-depth="180">
+  <div class="manifesto__pin">
+    <div class="manifesto__rule" aria-hidden="true"><i></i></div>
+    <div class="manifesto__stack">
+      <p class="manifesto__line" data-m="0"><span>A interface</span> <span>recebe</span> <span>os aplausos.</span></p>
+      <p class="manifesto__line" data-m="1"><span>A camada</span> <span>de baixo</span> <span>recebe a</span> <span>responsabilidade.</span></p>
+      <p class="manifesto__line manifesto__line--accent" data-m="2"><span>Eu trabalho</span> <span>na camada</span> <span>de baixo.</span></p>
+    </div>
+    <p class="manifesto__sub mono" data-m="3">
+      Autenticação · Titularidade · Transações · Observabilidade
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════ 02 · ORIGEM ═══════════════ -->
+<section class="sec sec--origem" id="origem" data-layer="2" data-label="Origem" data-depth="620">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__no mono" data-reveal="fade">02</span>
+      <h2 class="sechead__t" data-reveal="chars">Origem</h2>
+      <span class="sechead__rule" aria-hidden="true"><i></i></span>
+      <p class="sechead__k mono" data-reveal="fade">Quem está por trás da camada</p>
+    </header>
+
+    <div class="origem__grid">
+      <div class="origem__visual" data-par="0.16">
+        <div class="plate plate--a" data-par="0.30"><canvas class="artcanvas" data-art="grid" aria-hidden="true"></canvas></div>
+        <div class="plate plate--b" data-par="0.52">
+          <div class="plate__id mono"><span>ID</span><span>KV—2006</span></div>
+          <div class="plate__rows mono">
+            <i><span>Local</span><b>São Paulo, SP · BR</b></i>
+            <i><span>Idade</span><b>20 anos</b></i>
+            <i><span>Curso</span><b>Eng. de Software · FIAP</b></i>
+            <i><span>Período</span><b>5º · em andamento</b></i>
+            <i><span>Inglês</span><b>Intermediário · B1</b></i>
+            <i><span>Foco</span><b>Segurança &amp; Fintech</b></i>
+          </div>
+        </div>
+        <span class="plate__tag mono" data-par="0.72">disponível para oportunidades</span>
+      </div>
+
+      <div class="origem__text">
+        <p class="lead" data-reveal="words">
+          Estudante de Engenharia de Software e estagiário de desenvolvimento backend no <b>Itaú Unibanco</b>, onde integro as APIs do <b>Open Gateway (GSMA)</b> para aumentar a segurança em transações financeiras e validar a titularidade de dispositivos móveis.
+        </p>
+        <p class="body" data-reveal="words">
+          Trabalho com consumo e testes de APIs REST, autenticação <b>OAuth 2.0</b> e desenvolvimento em <b>Java com Spring Boot</b>, aplicado à computação em nuvem com diversos serviços da <b>AWS</b>. Domino <b>Oracle</b>, com experiência em modelagem, escrita e otimização de consultas SQL e PL/SQL, além da integração do banco com aplicações Java e Python.
+        </p>
+        <p class="body" data-reveal="words">
+          Atuo também com <b>observabilidade e monitoração</b> usando Datadog e Splunk — métricas, logs e alertas que garantem estabilidade e confiabilidade. Base sólida em Python, FastAPI, Flask e análise de dados; e projetos em JavaScript, React e TypeScript.
+        </p>
+        <p class="pull serif" data-reveal="words">
+          Gosto de resolver problemas com código e de trabalhar onde <i>segurança e inovação</i> se encontram.
+        </p>
+
+        <ul class="origem__mini" data-reveal="stagger">
+          <li><b>~1</b><span class="mono">ano no Itaú</span></li>
+          <li><b>8</b><span class="mono">serviços AWS</span></li>
+          <li><b>6</b><span class="mono">projetos próprios</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 03 · GATEWAY / ITAÚ ═══════════════ -->
+<section class="sec sec--gateway" id="gateway" data-layer="3" data-label="Confiança" data-depth="1240">
+  <div class="gateway__pin">
+    <div class="gateway__scene">
+      <div class="gw__rings" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <svg class="gw__diagram" viewBox="0 0 900 420" fill="none" aria-hidden="true">
+        <g class="gw__link" stroke="currentColor" stroke-width="1">
+          <path d="M120 210 H380" /><path d="M520 210 H780" />
+          <path d="M120 210 C 250 210, 250 90, 380 90" /><path d="M120 210 C 250 210, 250 330, 380 330" />
+          <path d="M520 90 C 650 90, 650 210, 780 210" /><path d="M520 330 C 650 330, 650 210, 780 210" />
+        </g>
+        <g class="gw__node">
+          <circle cx="120" cy="210" r="7" /><circle cx="780" cy="210" r="7" />
+          <circle cx="380" cy="90" r="5" /><circle cx="380" cy="330" r="5" />
+          <circle cx="520" cy="90" r="5" /><circle cx="520" cy="330" r="5" />
+        </g>
+        <rect class="gw__core" x="380" y="150" width="140" height="120" rx="2" />
+        <g class="gw__pulse"><circle cx="120" cy="210" r="4" /></g>
+      </svg>
+      <span class="gw__coretext mono" aria-hidden="true">GSMA<br>OPEN<br>GATEWAY</span>
+    </div>
+
+    <div class="gateway__content">
+      <header class="sechead sechead--inv">
+        <span class="sechead__no mono" data-g="0">03</span>
+        <h2 class="sechead__t" data-g="1">Confiança</h2>
+        <span class="sechead__rule" aria-hidden="true"><i></i></span>
+        <p class="sechead__k mono" data-g="2">Itaú Unibanco · Estágio · ~1 ano · em curso</p>
+      </header>
+
+      <p class="gateway__claim serif" data-g="3">
+        Provar que o telefone <i>é seu</i> — antes que o dinheiro se mova.
+      </p>
+
+      <div class="gateway__roles">
+        <article class="role" data-g="4">
+          <h3><span class="mono">R1</span> Open Gateway &amp; Telecom</h3>
+          <p>Desenvolvimento e integração de soluções baseadas no <b>Open Gateway (GSMA)</b> para validação de titularidade de celular e aumento da segurança em transações financeiras. Apoio na implementação e testes de <b>APIs REST</b>, autenticação via <b>OAuth 2.0</b> e comunicação entre sistemas internos e serviços externos de telecomunicações.</p>
+          <ul class="chips mono"><li>Java</li><li>Spring</li><li>Python</li><li>AWS</li><li>SQL</li><li>Angular</li><li>Datadog</li><li>Microsserviços</li></ul>
+        </article>
+        <article class="role" data-g="5">
+          <h3><span class="mono">R2</span> Infraestrutura &amp; Dados de Incidentes</h3>
+          <p>Implementação e suporte à infraestrutura do banco no setor de telecom. Responsável pela <b>análise de dados dos incidentes</b> de todos os níveis da comunidade como um todo — métricas, logs e alertas que sustentam a operação.</p>
+          <ul class="chips mono"><li>Python</li><li>Glue</li><li>Athena</li><li>QuickSight</li><li>S3</li><li>CloudWatch</li><li>Splunk</li></ul>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 04 · DOMÍNIO / PROJETOS ═══════════════ -->
+<section class="sec sec--dominio" id="dominio" data-layer="4" data-label="Domínio" data-depth="2100">
+  <div class="dominio__intro wrap">
+    <header class="sechead">
+      <span class="sechead__no mono" data-reveal="fade">04</span>
+      <h2 class="sechead__t" data-reveal="chars">Domínio</h2>
+      <span class="sechead__rule" aria-hidden="true"><i></i></span>
+      <p class="sechead__k mono" data-reveal="fade">Seis sistemas · do modelo de dados ao deploy</p>
+    </header>
+    <p class="dominio__hint mono" data-reveal="fade" aria-hidden="true">
+      <i class="arrow">&#8594;</i> role para atravessar
+    </p>
+  </div>
+
+  <div class="rail" id="rail">
+    <div class="rail__track" id="railtrack">
+
+      <article class="proj" data-p="1" style="--hue:14">
+        <div class="proj__bg" data-par="0.18" aria-hidden="true"><canvas class="artcanvas" data-art="flow"></canvas></div>
+        <div class="proj__no mono" data-par="0.40" aria-hidden="true">01</div>
+        <div class="proj__card">
+          <p class="proj__tag mono"><i class="dot dot--live"></i> Freelance · em produção</p>
+          <h3 class="proj__title">Casamento<br>Drielli &amp; Leonardo</h3>
+          <p class="proj__desc">Site de casamento entregue para cliente real e rodando em produção, com lista de presentes e <b>checkout real via Mercado Pago</b> — cartão parcelado, Pix e boleto —, confirmação de presença, galeria e painel administrativo.</p>
+          <div class="proj__hl">
+            <span class="mono">Destaques</span>
+            <p>Webhook de pagamento idempotente; estoque <b>calculado</b> a partir dos pagamentos (aprovado consome, estornado devolve, checkout abandonado expira em 20&nbsp;min) em vez de estado guardado; segredos isolados no servidor via API Routes; RLS e migrations no Supabase; núcleo de estoque e reserva escrito como funções puras.</p>
+          </div>
+          <ul class="chips mono"><li>Next.js 14</li><li>TypeScript</li><li>Tailwind</li><li>Supabase</li><li>Mercado Pago</li><li>Vitest</li><li>Vercel</li></ul>
+          <div class="proj__links">
+            <a href="https://casamento-drielli-leonardo.vercel.app" target="_blank" rel="noopener" data-cursor="ext">Ver ao vivo</a>
+            <a href="https://github.com/kevincvenancio/casamentoDrielliLeonardo" target="_blank" rel="noopener" data-cursor="ext">Código</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj" data-p="2" style="--hue:205">
+        <div class="proj__bg" data-par="0.18" aria-hidden="true"><canvas class="artcanvas" data-art="layers"></canvas></div>
+        <div class="proj__no mono" data-par="0.40" aria-hidden="true">02</div>
+        <div class="proj__card">
+          <p class="proj__tag mono"><i class="dot"></i> Challenge · FIAP + TOTVS</p>
+          <h3 class="proj__title">Hermes<br>Meeting Intelligence</h3>
+          <p class="proj__desc">Plataforma de inteligência comercial que analisa transcrições de reuniões: importa CSVs, classifica completude, extrai <b>sentimento, risco de churn e oportunidades de venda cruzada</b>, gera relatórios executivos em PDF e oferece acompanhamento comercial.</p>
+          <div class="proj__hl">
+            <span class="mono">Destaques</span>
+            <p>API RESTful com <b>31 recursos e 44 operações</b> em <code>/api/v1</code>; camada DAO genérica (<code>GenericDao</code> + <code>AbstractJpaDao</code>) com consultas dinâmicas e paginadas; exceções centralizadas com <code>@RestControllerAdvice</code>; perfis Spring para alternar banco e interface; migração H2 &#8594; Oracle preservando ids e chaves estrangeiras.</p>
+          </div>
+          <ul class="chips mono"><li>Java 17</li><li>Spring Boot</li><li>Oracle 19c</li><li>JPA</li><li>OpenAPI 3</li><li>React + Vite</li><li>Maven</li></ul>
+          <div class="proj__links"><a href="https://github.com/kevincvenancio/totvs-meeting-intelligence" target="_blank" rel="noopener" data-cursor="ext">Código</a></div>
+        </div>
+      </article>
+
+      <article class="proj" data-p="3" style="--hue:172">
+        <div class="proj__bg" data-par="0.18" aria-hidden="true"><canvas class="artcanvas" data-art="orbit"></canvas></div>
+        <div class="proj__no mono" data-par="0.40" aria-hidden="true">03</div>
+        <div class="proj__card">
+          <p class="proj__tag mono"><i class="dot"></i> Global Solution · FIAP 2026</p>
+          <h3 class="proj__title">Asteroid Mining<br>Logistics System</h3>
+          <p class="proj__desc">Sistema de logística e navegação para mineração de asteroides usando <b>dados reais da NASA</b>. Consome a API NeoWs, classifica asteroides por composição mineral, calcula scores de prioridade e seleciona a combinação ótima dentro da capacidade de carga da nave.</p>
+          <div class="proj__hl">
+            <span class="mono">Destaques</span>
+            <p>Algoritmo <b>Knapsack 0/1 com programação dinâmica</b> para otimização de carga; <b>Domain-Driven Design</b> com <b>Arquitetura Hexagonal</b> (Ports &amp; Adapters); persistência local sem servidor externo; projeto em equipe de 5 pessoas.</p>
+          </div>
+          <ul class="chips mono"><li>Java 21</li><li>H2 embarcado</li><li>Gson</li><li>HttpClient</li><li>Maven</li><li>DDD</li><li>Hexagonal</li></ul>
+          <div class="proj__links"><a href="https://github.com/kevincvenancio/Asteroids_app" target="_blank" rel="noopener" data-cursor="ext">Código</a></div>
+        </div>
+      </article>
+
+      <article class="proj" data-p="4" style="--hue:32">
+        <div class="proj__bg" data-par="0.18" aria-hidden="true"><canvas class="artcanvas" data-art="token"></canvas></div>
+        <div class="proj__no mono" data-par="0.40" aria-hidden="true">04</div>
+        <div class="proj__card">
+          <p class="proj__tag mono"><i class="dot"></i> Projeto pessoal</p>
+          <h3 class="proj__title">Pizzaria<br>Delivery API</h3>
+          <p class="proj__desc">Backend completo de um sistema de delivery: criação de contas, autenticação, ciclo de vida de pedidos (criar, adicionar e remover itens, cancelar, finalizar) e controle de acesso por tipo de usuário.</p>
+          <div class="proj__hl">
+            <span class="mono">Destaques</span>
+            <p>Autenticação <b>JWT com refresh token</b> e login via JSON ou formulário OAuth2; rotas protegidas por dependência de verificação de token; <b>autorização por papel</b> (admin &#215; cliente); modelagem Usuário / Pedido / ItemPedido; documentação automática em Swagger e ReDoc.</p>
+          </div>
+          <ul class="chips mono"><li>FastAPI</li><li>SQLAlchemy</li><li>SQLite</li><li>Pydantic</li><li>Passlib</li><li>python-jose</li><li>Uvicorn</li></ul>
+          <div class="proj__links"><a href="https://github.com/kevincvenancio/deliveryFastAPI" target="_blank" rel="noopener" data-cursor="ext">Código</a></div>
+        </div>
+      </article>
+
+      <article class="proj" data-p="5" style="--hue:280">
+        <div class="proj__bg" data-par="0.18" aria-hidden="true"><canvas class="artcanvas" data-art="regression"></canvas></div>
+        <div class="proj__no mono" data-par="0.40" aria-hidden="true">05</div>
+        <div class="proj__card">
+          <p class="proj__tag mono"><i class="dot"></i> Pessoal · Dados e ML</p>
+          <h3 class="proj__title">Previsão de Preços<br>no Airbnb</h3>
+          <p class="proj__desc">Modelo de machine learning que estima o preço justo da diária a partir das características do imóvel. Serve a <b>dois públicos</b>: proprietários, que querem precificar corretamente, e locatários, que querem saber se um anúncio está acima ou abaixo da média.</p>
+          <div class="proj__hl">
+            <span class="mono">Destaques</span>
+            <p>Base de anúncios mensais de <b>abril/2018 a maio/2020</b>; pipeline completo de limpeza, engenharia de atributos e treino; deploy em Streamlit com formulário interativo (localização, tipo de imóvel, tipo de quarto, camas, superhost, política de cancelamento) devolvendo a previsão na hora.</p>
+          </div>
+          <ul class="chips mono"><li>Python</li><li>pandas</li><li>scikit-learn</li><li>Jupyter</li><li>joblib</li><li>Streamlit</li></ul>
+          <div class="proj__links"><a href="https://github.com/kevincvenancio/modeloAirBnB" target="_blank" rel="noopener" data-cursor="ext">Código</a></div>
+        </div>
+      </article>
+
+      <article class="proj" data-p="6" style="--hue:96">
+        <div class="proj__bg" data-par="0.18" aria-hidden="true"><canvas class="artcanvas" data-art="fanout"></canvas></div>
+        <div class="proj__no mono" data-par="0.40" aria-hidden="true">06</div>
+        <div class="proj__card">
+          <p class="proj__tag mono"><i class="dot"></i> Pessoal · Automação</p>
+          <h3 class="proj__title">Automação<br>de Indicadores</h3>
+          <p class="proj__desc">Automação ponta a ponta do relatório diário de desempenho (<b>OnePage</b>) de uma rede de varejo com <b>25 lojas</b>: calcula os indicadores de cada unidade, compara com as metas e dispara os e-mails — sem intervenção manual.</p>
+          <div class="proj__hl">
+            <span class="mono">Destaques</span>
+            <p>E-mail <b>personalizado por gerente</b>, com o OnePage da loja no corpo da mensagem e os dados completos em anexo; e-mail consolidado para a diretoria; tratamento de credenciais por variáveis de ambiente.</p>
+          </div>
+          <ul class="chips mono"><li>Python 3</li><li>pandas</li><li>smtplib</li><li>pathlib</li><li>Excel / CSV</li></ul>
+          <div class="proj__links"><a href="https://github.com/kevincvenancio/projetoPessoal-Automacao" target="_blank" rel="noopener" data-cursor="ext">Código</a></div>
+        </div>
+      </article>
+
+    </div>
+    <div class="rail__progress" aria-hidden="true"><i id="railfill"></i></div>
+  </div>
+</section>
+
+<!-- ═══════════════ 05 · ARSENAL ═══════════════ -->
+<section class="sec sec--arsenal" id="arsenal" data-layer="5" data-label="Arsenal" data-depth="3400">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__no mono" data-reveal="fade">05</span>
+      <h2 class="sechead__t" data-reveal="chars">Arsenal</h2>
+      <span class="sechead__rule" aria-hidden="true"><i></i></span>
+      <p class="sechead__k mono" data-reveal="fade">Competências técnicas · sete frentes</p>
+    </header>
+  </div>
+
+  <div class="marquees" aria-hidden="true">
+    <div class="mq" data-speed="-1" data-par="0.10"><div class="mq__in mono"><span>JAVA</span><span>&#9670;</span><span>SPRING BOOT</span><span>&#9670;</span><span>PYTHON</span><span>&#9670;</span><span>AWS</span><span>&#9670;</span><span>ORACLE</span><span>&#9670;</span><span>OAUTH 2.0</span><span>&#9670;</span><span>MICROSSERVIÇOS</span><span>&#9670;</span></div></div>
+    <div class="mq mq--dim" data-speed="1" data-par="0.24"><div class="mq__in mono"><span>FASTAPI</span><span>&#9671;</span><span>DATADOG</span><span>&#9671;</span><span>SPLUNK</span><span>&#9671;</span><span>GLUE</span><span>&#9671;</span><span>ATHENA</span><span>&#9671;</span><span>QUICKSIGHT</span><span>&#9671;</span><span>CLOUDWATCH</span><span>&#9671;</span></div></div>
+    <div class="mq mq--faint" data-speed="-0.6" data-par="0.40"><div class="mq__in mono"><span>DDD</span><span>&#183;</span><span>ARQUITETURA HEXAGONAL</span><span>&#183;</span><span>TESTES AUTOMATIZADOS</span><span>&#183;</span><span>JPA / HIBERNATE</span><span>&#183;</span><span>OPENAPI</span><span>&#183;</span></div></div>
+  </div>
+
+  <div class="wrap">
+    <div class="arsenal__grid">
+      <div class="ars" data-ars>
+        <h3 class="ars__h"><span class="mono">A</span> Linguagens</h3>
+        <ul class="ars__l"><li>Java</li><li>Python</li><li>SQL</li><li>PL/SQL</li><li>TypeScript</li><li>JavaScript</li></ul>
+      </div>
+      <div class="ars" data-ars>
+        <h3 class="ars__h"><span class="mono">B</span> Backend &amp; APIs</h3>
+        <ul class="ars__l"><li>Spring Boot</li><li>Spring</li><li>FastAPI</li><li>Flask</li><li>APIs REST</li><li>OAuth 2.0</li><li>JWT</li><li>Microsserviços</li><li>OpenAPI / Swagger</li><li>SQLAlchemy</li><li>JPA / Hibernate</li></ul>
+      </div>
+      <div class="ars" data-ars>
+        <h3 class="ars__h"><span class="mono">C</span> Cloud · AWS</h3>
+        <ul class="ars__l"><li>EC2</li><li>ECS</li><li>S3</li><li>API Gateway</li><li>CloudWatch</li><li>Glue</li><li>Athena</li><li>QuickSight</li></ul>
+      </div>
+      <div class="ars" data-ars>
+        <h3 class="ars__h"><span class="mono">D</span> Dados &amp; Bancos</h3>
+        <ul class="ars__l"><li>Oracle</li><li>Modelagem de dados</li><li>Otimização de queries</li><li>PostgreSQL / Supabase</li><li>H2</li><li>SQLite</li><li>pandas</li><li>Análise de dados</li><li>Machine Learning</li></ul>
+      </div>
+      <div class="ars" data-ars>
+        <h3 class="ars__h"><span class="mono">E</span> Observabilidade</h3>
+        <ul class="ars__l"><li>Datadog</li><li>Splunk</li><li>CloudWatch</li><li>Métricas, logs e alertas</li></ul>
+      </div>
+      <div class="ars" data-ars>
+        <h3 class="ars__h"><span class="mono">F</span> Front-end</h3>
+        <ul class="ars__l"><li>React</li><li>Next.js</li><li>Angular</li><li>Tailwind CSS</li><li>Vite</li><li>Streamlit</li></ul>
+      </div>
+      <div class="ars ars--wide" data-ars>
+        <h3 class="ars__h"><span class="mono">G</span> Práticas &amp; Arquitetura</h3>
+        <ul class="ars__l"><li>Orientação a objetos</li><li>DDD</li><li>Arquitetura Hexagonal</li><li>Testes automatizados</li><li>Git / GitHub</li><li>Maven</li><li>Gateways de pagamento</li><li>Automação de processos</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 06 · SUBSTRATO / PROVAS ═══════════════ -->
+<section class="sec sec--substrato" id="substrato" data-layer="6" data-label="Substrato" data-depth="4600">
+  <div class="wrap">
+    <header class="sechead sechead--center">
+      <span class="sechead__no mono" data-reveal="fade">06</span>
+      <h2 class="sechead__t" data-reveal="chars">Substrato</h2>
+      <span class="sechead__rule" aria-hidden="true"><i></i></span>
+      <p class="sechead__k mono" data-reveal="fade">O que dá para medir</p>
+    </header>
+
+    <div class="stats">
+      <div class="stat" data-stat>
+        <b class="stat__n" data-count="1" data-suffix=" ano">0</b>
+        <span class="stat__l">de estágio no Itaú Unibanco</span>
+        <i class="stat__d mono">produção · incidentes · observabilidade</i>
+      </div>
+      <div class="stat" data-stat>
+        <b class="stat__n" data-count="1">0</b>
+        <span class="stat__l">site em produção com pagamentos reais</span>
+        <i class="stat__d mono">Mercado Pago · Pix · cartão · boleto</i>
+      </div>
+      <div class="stat" data-stat>
+        <b class="stat__n" data-count="31">0</b>
+        <span class="stat__l">recursos REST em uma única API</span>
+        <i class="stat__d mono">44 operações em /api/v1 · Hermes</i>
+      </div>
+      <div class="stat" data-stat>
+        <b class="stat__n" data-count="8">0</b>
+        <span class="stat__l">serviços AWS em uso real</span>
+        <i class="stat__d mono">EC2 · ECS · S3 · API GW · CW · Glue · Athena · QS</i>
+      </div>
+      <div class="stat" data-stat>
+        <b class="stat__n" data-count="25">0</b>
+        <span class="stat__l">lojas com relatório automatizado</span>
+        <i class="stat__d mono">OnePage diário · zero intervenção manual</i>
+      </div>
+      <div class="stat" data-stat>
+        <b class="stat__n" data-count="0" data-text="Knapsack 0/1">0</b>
+        <span class="stat__l">otimização aplicada a dados da NASA</span>
+        <i class="stat__d mono">programação dinâmica · API NeoWs</i>
+      </div>
+    </div>
+
+    <p class="substrato__close serif" data-reveal="words">
+      Experiência corporativa em banco somada a projetos próprios de ponta a ponta — <i>do modelo de dados ao deploy</i>.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════ 07 · CONTATO / RESSURGIR ═══════════════ -->
+<section class="sec sec--contato" id="contato" data-layer="7" data-label="Superfície" data-depth="5400">
+  <div class="contato__rise" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="wrap">
+    <p class="eyebrow mono" data-reveal="fade"><i class="dot dot--live"></i> Camada 07 — de volta à superfície</p>
+
+    <h2 class="contato__big" data-reveal="chars" aria-label="Vamos construir a camada de baixo">
+      <span>Vamos construir</span><span class="is-serif">a camada</span><span>de baixo</span>
+    </h2>
+
+    <div class="contato__grid">
+      <a class="cto" href="mailto:kevincvenancio@gmail.com" data-cursor="copy" data-copy="kevincvenancio@gmail.com">
+        <span class="mono cto__k">E-mail</span>
+        <span class="cto__v">kevincvenancio@gmail.com</span>
+        <i class="cto__a" aria-hidden="true">&#8599;</i>
+      </a>
+      <a class="cto" href="tel:+5511939510756" data-cursor="copy" data-copy="(11) 93951-0756">
+        <span class="mono cto__k">Telefone</span>
+        <span class="cto__v">(11) 93951-0756</span>
+        <i class="cto__a" aria-hidden="true">&#8599;</i>
+      </a>
+      <a class="cto" href="https://github.com/kevincvenancio" target="_blank" rel="noopener" data-cursor="ext">
+        <span class="mono cto__k">GitHub</span>
+        <span class="cto__v">github.com/kevincvenancio</span>
+        <i class="cto__a" aria-hidden="true">&#8599;</i>
+      </a>
+      <a class="cto" href="https://linkedin.com/in/kevin-carvalho-venancio-7a1a45345" target="_blank" rel="noopener" data-cursor="ext">
+        <span class="mono cto__k">LinkedIn</span>
+        <span class="cto__v">kevin-carvalho-venancio</span>
+        <i class="cto__a" aria-hidden="true">&#8599;</i>
+      </a>
+    </div>
+
+    <footer class="foot">
+      <div class="foot__l mono">
+        <span>&#169; 2026 Kevin Carvalho Venancio</span>
+        <span>São Paulo · Brasil</span>
+      </div>
+      <div class="foot__c mono" aria-hidden="true">
+        <span id="clock">--:--:--</span>
+        <span>BRT · UTC&#8722;3</span>
+      </div>
+      <button class="foot__up mono" id="toTop" data-cursor="link">
+        Subir à superfície <i aria-hidden="true">&#8593;</i>
+      </button>
+    </footer>
+  </div>
+</section>
+
+</main>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
